@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>The Prophecy</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -15,17 +15,19 @@
             --gold-dim: #998100;
             --magic: #00EAFF;
             --bg: #030303;
-            --glass: rgba(12, 12, 12, 0.9);
+            --glass: rgba(12, 12, 12, 0.95);
         }
 
-        body {
+        html, body {
             margin: 0; padding: 0;
             background-color: var(--bg);
             color: var(--gold);
             font-family: 'Cinzel Decorative', serif;
-            overflow: hidden; height: 100vh;
+            overflow: hidden; 
+            height: 100dvh; 
+            width: 100%;
             cursor: none; /* Custom Wand */
-            touch-action: none; /* Prevents scroll on mobile for better experience */
+            touch-action: none; 
         }
 
         /* --- 2. ATMOSPHERE --- */
@@ -70,17 +72,25 @@
             opacity: 0; transform: scale(1.1);
             transition: all 0.8s cubic-bezier(0.22, 1, 0.36, 1);
             z-index: 10;
+            padding: 20px; 
+            box-sizing: border-box;
         }
         .chapter.active { display: flex; opacity: 1; transform: scale(1); }
 
         /* The Main Box */
         .artifact-box {
-            position: relative; width: 85%; max-width: 600px;
-            padding: 50px 30px; text-align: center;
+            position: relative; 
+            width: 100%; 
+            max-width: 650px; /* Wider to fit text */
+            padding: 50px 30px; 
+            text-align: center;
             background: var(--glass);
+            /* Subtle texture overlay */
+            background-image: url('https://www.transparenttextures.com/patterns/black-scales.png');
             border: 2px solid var(--gold);
-            box-shadow: 0 0 80px rgba(255, 215, 0, 0.1), inset 0 0 50px rgba(0,0,0,0.8);
-            border-radius: 4px;
+            box-shadow: 0 0 80px rgba(255, 215, 0, 0.15), inset 0 0 50px rgba(0,0,0,0.9);
+            border-radius: 6px;
+            box-sizing: border-box;
         }
         
         .artifact-box::before, .artifact-box::after {
@@ -90,22 +100,48 @@
         .artifact-box::before { top: -6px; left: -6px; border-right: none; border-bottom: none; }
         .artifact-box::after { bottom: -6px; right: -6px; border-left: none; border-top: none; }
 
-        /* Typography */
-        h1 { font-size: 3rem; margin: 0 0 10px; line-height: 1.1; text-shadow: 0 0 25px var(--gold-dim); }
-        h2 { font-family: 'Montserrat', sans-serif; font-size: 0.9rem; letter-spacing: 4px; color: #888; text-transform: uppercase; margin-bottom: 20px; }
-        p { font-family: 'Playfair Display', serif; font-size: 1.2rem; color: #ccc; line-height: 1.6; font-style: italic; }
+        /* Typography Fixes */
+        h1 { 
+            /* Clamp font size so it shrinks on mobile but stays big on desktop */
+            font-size: clamp(1.8rem, 4.5vw, 3.2rem); 
+            margin: 10px 0 20px 0; 
+            line-height: 1.2; 
+            text-shadow: 0 0 25px var(--gold-dim); 
+            white-space: nowrap; /* Tries to keep text on one line */
+        }
+        
+        /* Mobile override for h1 if screen is too small */
+        @media (max-width: 480px) {
+            h1 { white-space: normal; } /* Allow wrapping only on tiny screens */
+        }
+
+        h2 { 
+            font-family: 'Montserrat', sans-serif; 
+            font-size: 0.8rem; 
+            letter-spacing: 4px; 
+            color: #888; 
+            text-transform: uppercase; 
+            margin-bottom: 20px; 
+        }
+        p { 
+            font-family: 'Playfair Display', serif; 
+            font-size: 1.2rem; 
+            color: #ccc; 
+            line-height: 1.6; 
+            font-style: italic; 
+        }
 
         /* Interactive */
         input {
             background: transparent; border: none; border-bottom: 2px solid #333;
             color: #fff; font-family: 'Cinzel Decorative'; font-size: 2rem;
-            text-align: center; width: 100%; outline: none; margin: 20px 0;
+            text-align: center; width: 100%; outline: none; margin: 30px 0;
             text-transform: uppercase; letter-spacing: 5px; transition: 0.3s;
         }
         input:focus { border-color: var(--gold); text-shadow: 0 0 10px var(--gold); }
 
         .btn-magic {
-            margin-top: 20px; padding: 15px 40px;
+            margin-top: 20px; padding: 15px 45px;
             background: transparent; border: 1px solid var(--gold);
             color: var(--gold); font-family: 'Cinzel Decorative'; font-size: 1rem;
             cursor: pointer; letter-spacing: 3px; position: relative; overflow: hidden;
@@ -115,7 +151,7 @@
 
         /* Hint */
         .hint-text {
-            display: none; font-family: 'Montserrat'; font-size: 0.8rem; color: var(--magic); 
+            display: none; font-family: 'Montserrat'; font-size: 0.9rem; color: var(--magic); 
             margin-top: 15px; border: 1px dashed var(--magic); padding: 10px;
         }
 
@@ -128,36 +164,31 @@
         .seal-text { font-size: 3rem; margin: 0; }
 
         .ticket-visual {
-            background: #e6dcc3; color: #111; padding: 20px; transform: rotate(-2deg);
+            background: #e6dcc3; color: #111; padding: 25px; transform: rotate(-2deg);
             border: 2px dashed #333; font-family: 'Playfair Display'; margin: 20px 0;
             box-shadow: 10px 10px 30px rgba(0,0,0,0.8);
         }
 
-        .finale-container { border: 4px double var(--gold); padding: 30px; background: rgba(20,0,0,0.9); }
+        .finale-container { border: 4px double var(--gold); padding: 40px; background: rgba(20,0,0,0.95); }
         .timer-box { 
             font-family: 'Montserrat', monospace; border: 1px solid var(--gold); 
-            padding: 10px; display: inline-block; margin-top: 20px; color: #fff; font-size: 0.9rem;
+            padding: 12px; display: inline-block; margin-top: 20px; color: #fff; font-size: 1rem;
         }
         
         .firework { position: absolute; width: 4px; height: 4px; border-radius: 50%; animation: explode 1s forwards; }
-
-        /* --- MOBILE OPTIMIZATION --- */
-        @media (max-width: 768px) {
-            h1 { font-size: 2rem; }
-            h2 { font-size: 0.7rem; letter-spacing: 2px; }
-            p { font-size: 1rem; }
-            .artifact-box { padding: 30px 20px; width: 90%; }
-            #wand { display: none; } /* Hide wand image on mobile */
-            body { cursor: auto; }
-            input { font-size: 1.5rem; width: 100%; }
-            .ticket-visual { transform: rotate(0deg); }
-        }
 
         /* ANIMATIONS */
         @keyframes moveFog { 0% {transform: translateX(0);} 100% {transform: translateX(-50%);} }
         @keyframes flyAcross { 0% {left: -300px; top: 15%; transform: rotate(5deg) scale(0.8);} 100% {left: 110vw; transform: rotate(-5deg) scale(0.8);} }
         @keyframes pulseGlow { 0% {box-shadow: 0 0 0 0 rgba(255,215,0,0.4);} 70% {box-shadow: 0 0 0 30px rgba(0,0,0,0);} 100% {box-shadow: 0 0 0 0 rgba(0,0,0,0);} }
         @keyframes explode { 0% {opacity: 1;} 100% {opacity: 0; transform: translate(var(--x), var(--y));} }
+
+        /* MOBILE TWEAKS */
+        @media (max-width: 768px) {
+            #wand { display: none; } /* Hide custom cursor on phones */
+            .artifact-box { padding: 40px 20px; width: 95%; }
+            h1 { font-size: 2rem; } /* Force smaller font on small phones */
+        }
 
     </style>
 </head>
@@ -249,7 +280,7 @@
 
     <div id="ch6" class="chapter">
         <div class="artifact-box" style="border-color:var(--magic);">
-            <svg viewBox="0 0 100 100" style="width:120px; fill:none; stroke:var(--magic); stroke-width:2; filter:drop-shadow(0 0 10px var(--magic));">
+            <svg viewBox="0 0 100 100" style="width:150px; fill:none; stroke:var(--magic); stroke-width:2; filter:drop-shadow(0 0 10px var(--magic));">
                 <path d="M50,90 L50,60 M50,60 L30,40 M50,60 L70,40 M30,40 L30,20 M70,40 L70,20" />
             </svg>
             <h2 style="color:var(--magic);">CHAPTER V: THE MAGIC</h2>
@@ -305,7 +336,7 @@
             }
         }
 
-        // Mouse Move
+        // Mouse Move (Desktop)
         document.addEventListener('mousemove', (e) => {
             requestAnimationFrame(() => {
                 wand.style.transform = `translate(${e.clientX}px, ${e.clientY}px) rotate(${e.clientX * 0.05}deg)`;
@@ -313,7 +344,7 @@
             for(let i=0; i<3; i++) particles.push(new Particle(e.clientX, e.clientY));
         });
 
-        // Touch Move (For Mobile)
+        // Touch Move (Mobile)
         document.addEventListener('touchmove', (e) => {
             const touch = e.touches[0];
             for(let i=0; i<3; i++) particles.push(new Particle(touch.clientX, touch.clientY));
@@ -354,6 +385,7 @@
                 nextChapter(3);
             } else {
                 input.style.borderBottom = "2px solid red";
+                // Shake Animation
                 const box = document.querySelector('.artifact-box');
                 box.style.transform = "translateX(10px)";
                 setTimeout(()=> { 
