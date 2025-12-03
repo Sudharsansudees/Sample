@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>The Prophecy</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700;900&family=Playfair+Display:ital,wght@1,400;1,700&family=Montserrat:wght@300;600&display=swap" rel="stylesheet">
+
+    <style>
+        /* --- 1. CORE UNIVERSE --- */
+        :root {
+            --gold: #FFD700;
+            --gold-dim: #998100;
+            --magic: #00EAFF;
+            --bg: #030303;
+            --glass: rgba(12, 12, 12, 0.9);
+        }
+
+        body {
+            margin: 0; padding: 0;
+            background-color: var(--bg);
+            color: var(--gold);
+            font-family: 'Cinzel Decorative', serif;
+            overflow: hidden; height: 100vh;
+            cursor: none; /* Custom Wand */
+            touch-action: none; /* Prevents scroll on mobile for better experience */
+        }
+
+        /* --- 2. ATMOSPHERE --- */
+        #starfield {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: radial-gradient(circle at 50% 50%, #1a1a2e 0%, #000 85%);
+            z-index: 0;
+        }
+        
+        .fog-layer {
+            position: absolute; width: 200%; height: 100%;
+            background: url('https://raw.githubusercontent.com/danielstuart14/CSS_FOG_ANIMATION/master/fog1.png') repeat-x;
+            background-size: 50% 100%; opacity: 0.3;
+            animation: moveFog 60s linear infinite; z-index: 1; pointer-events: none;
+        }
+
+        #harry-bg {
+            position: fixed; top: 15%; left: -300px; width: 220px;
+            opacity: 0.5; z-index: 2; pointer-events: none;
+            filter: drop-shadow(0 0 20px #000);
+            animation: flyAcross 25s linear infinite;
+        }
+
+        /* --- 3. FAST WAND CURSOR --- */
+        #wand {
+            position: fixed; top: 0; left: 0; width: 4px; height: 60px;
+            background: linear-gradient(180deg, #3d2e10, #000);
+            border-radius: 2px; pointer-events: none; z-index: 10000;
+            transform-origin: top center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.8);
+            will-change: transform;
+        }
+        #magic-canvas {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none; z-index: 9999;
+        }
+
+        /* --- 4. THE UI SYSTEM --- */
+        .chapter {
+            position: absolute; width: 100%; height: 100%;
+            display: none; flex-direction: column; justify-content: center; align-items: center;
+            opacity: 0; transform: scale(1.1);
+            transition: all 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+            z-index: 10;
+        }
+        .chapter.active { display: flex; opacity: 1; transform: scale(1); }
+
+        /* The Main Box */
+        .artifact-box {
+            position: relative; width: 85%; max-width: 600px;
+            padding: 50px 30px; text-align: center;
+            background: var(--glass);
+            border: 2px solid var(--gold);
+            box-shadow: 0 0 80px rgba(255, 215, 0, 0.1), inset 0 0 50px rgba(0,0,0,0.8);
+            border-radius: 4px;
+        }
+        
+        .artifact-box::before, .artifact-box::after {
+            content: ''; position: absolute; width: 30px; height: 30px;
+            border: 3px solid var(--gold);
+        }
+        .artifact-box::before { top: -6px; left: -6px; border-right: none; border-bottom: none; }
+        .artifact-box::after { bottom: -6px; right: -6px; border-left: none; border-top: none; }
+
+        /* Typography */
+        h1 { font-size: 3rem; margin: 0 0 10px; line-height: 1.1; text-shadow: 0 0 25px var(--gold-dim); }
+        h2 { font-family: 'Montserrat', sans-serif; font-size: 0.9rem; letter-spacing: 4px; color: #888; text-transform: uppercase; margin-bottom: 20px; }
+        p { font-family: 'Playfair Display', serif; font-size: 1.2rem; color: #ccc; line-height: 1.6; font-style: italic; }
+
+        /* Interactive */
+        input {
+            background: transparent; border: none; border-bottom: 2px solid #333;
+            color: #fff; font-family: 'Cinzel Decorative'; font-size: 2rem;
+            text-align: center; width: 100%; outline: none; margin: 20px 0;
+            text-transform: uppercase; letter-spacing: 5px; transition: 0.3s;
+        }
+        input:focus { border-color: var(--gold); text-shadow: 0 0 10px var(--gold); }
+
+        .btn-magic {
+            margin-top: 20px; padding: 15px 40px;
+            background: transparent; border: 1px solid var(--gold);
+            color: var(--gold); font-family: 'Cinzel Decorative'; font-size: 1rem;
+            cursor: pointer; letter-spacing: 3px; position: relative; overflow: hidden;
+            transition: 0.4s; z-index: 1;
+        }
+        .btn-magic:hover { color: #000; box-shadow: 0 0 30px var(--gold); background: var(--gold); }
+
+        /* Hint */
+        .hint-text {
+            display: none; font-family: 'Montserrat'; font-size: 0.8rem; color: var(--magic); 
+            margin-top: 15px; border: 1px dashed var(--magic); padding: 10px;
+        }
+
+        /* --- PAGE SPECIFIC --- */
+        .pulsing-seal {
+            width: 140px; height: 140px; border: 2px solid var(--gold); border-radius: 50%;
+            display: flex; justify-content: center; align-items: center; cursor: pointer;
+            animation: pulseGlow 3s infinite; position: relative;
+        }
+        .seal-text { font-size: 3rem; margin: 0; }
+
+        .ticket-visual {
+            background: #e6dcc3; color: #111; padding: 20px; transform: rotate(-2deg);
+            border: 2px dashed #333; font-family: 'Playfair Display'; margin: 20px 0;
+            box-shadow: 10px 10px 30px rgba(0,0,0,0.8);
+        }
+
+        .finale-container { border: 4px double var(--gold); padding: 30px; background: rgba(20,0,0,0.9); }
+        .timer-box { 
+            font-family: 'Montserrat', monospace; border: 1px solid var(--gold); 
+            padding: 10px; display: inline-block; margin-top: 20px; color: #fff; font-size: 0.9rem;
+        }
+        
+        .firework { position: absolute; width: 4px; height: 4px; border-radius: 50%; animation: explode 1s forwards; }
+
+        /* --- MOBILE OPTIMIZATION --- */
+        @media (max-width: 768px) {
+            h1 { font-size: 2rem; }
+            h2 { font-size: 0.7rem; letter-spacing: 2px; }
+            p { font-size: 1rem; }
+            .artifact-box { padding: 30px 20px; width: 90%; }
+            #wand { display: none; } /* Hide wand image on mobile */
+            body { cursor: auto; }
+            input { font-size: 1.5rem; width: 100%; }
+            .ticket-visual { transform: rotate(0deg); }
+        }
+
+        /* ANIMATIONS */
+        @keyframes moveFog { 0% {transform: translateX(0);} 100% {transform: translateX(-50%);} }
+        @keyframes flyAcross { 0% {left: -300px; top: 15%; transform: rotate(5deg) scale(0.8);} 100% {left: 110vw; transform: rotate(-5deg) scale(0.8);} }
+        @keyframes pulseGlow { 0% {box-shadow: 0 0 0 0 rgba(255,215,0,0.4);} 70% {box-shadow: 0 0 0 30px rgba(0,0,0,0);} 100% {box-shadow: 0 0 0 0 rgba(0,0,0,0);} }
+        @keyframes explode { 0% {opacity: 1;} 100% {opacity: 0; transform: translate(var(--x), var(--y));} }
+
+    </style>
+</head>
+<body>
+
+    <audio id="bg-music" loop>
+        <source src="theme.mp3" type="audio/mpeg">
+    </audio>
+
+    <div id="starfield"></div>
+    <div class="fog-layer"></div>
+    <canvas id="magic-canvas"></canvas>
+
+    <div id="harry-bg">
+        <svg viewBox="0 0 200 150">
+            <g transform="rotate(-10 100 75)">
+                <rect x="20" y="100" width="160" height="8" fill="#8B4513" rx="4"/>
+                <path d="M20 100 L10 90 L10 118 L20 108 Z" fill="#DAA520"/>
+                <path d="M90 90 Q 50 80, 20 60 L 40 100 Z" fill="#000" opacity="0.8"/>
+                <circle cx="100" cy="55" r="12" fill="#ffdbac"/>
+                <path d="M85 50 L115 50 L100 10 Z" fill="#111"/>
+                <rect x="90" y="65" width="20" height="5" fill="#740001"/>
+            </g>
+        </svg>
+    </div>
+
+    <div id="wand"></div>
+
+    <div id="ch1" class="chapter active">
+        <div class="pulsing-seal" onclick="nextChapter(2, true)">
+            <h1 class="seal-text">DN</h1>
+        </div>
+        <p style="margin-top: 40px; letter-spacing: 5px; opacity: 0.7;">TAP TO OPEN THE ARCHIVE</p>
+    </div>
+
+    <div id="ch2" class="chapter">
+        <div class="artifact-box">
+            <h2>CHAPTER I: THE GUARDIAN</h2>
+            <p>"I have no voice, but I open doors..."</p>
+            <input type="text" id="spellInput" placeholder="THE PASSWORD" autocomplete="off">
+            <button class="btn-magic" onclick="checkSpell()">UNLOCK</button>
+            
+            <div style="margin-top: 30px;">
+                <p onclick="document.getElementById('google-hint').style.display='block'" style="font-size:0.8rem; cursor:pointer; text-decoration:underline; opacity:0.6;">I don't know the spell...</p>
+                <div id="google-hint" class="hint-text">
+                    Open Google and search:<br><strong>"Harry Potter unlocking spell"</strong>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="ch3" class="chapter">
+        <div class="artifact-box">
+            <div style="font-size: 4rem; line-height:1; margin-bottom:20px;">✉️</div>
+            <h2>CHAPTER II: OWL POST</h2>
+            <h1>A LETTER ARRIVES</h1>
+            <p>Priority delivery for Ms. Neelapuram.</p>
+            <button class="btn-magic" onclick="nextChapter(4)">OPEN LETTER</button>
+        </div>
+    </div>
+
+    <div id="ch4" class="chapter">
+        <div class="artifact-box">
+            <h2>CHAPTER III: DEPARTURE</h2>
+            <div class="ticket-visual">
+                <div style="border-bottom: 2px solid #000; display:flex; justify-content:space-between; margin-bottom:10px;">
+                    <span>LONDON</span><span>HOGWARTS</span>
+                </div>
+                <div style="font-size:3rem; font-weight:bold; line-height:1;">9 ¾</div>
+                <div style="font-size:0.9rem; margin-top:10px;">PASSENGER: DHARANI N.</div>
+            </div>
+            <p>The train leaves at 11:00 AM.</p>
+            <button class="btn-magic" onclick="nextChapter(5)">BOARD TRAIN</button>
+        </div>
+    </div>
+
+    <div id="ch5" class="chapter">
+        <div class="artifact-box">
+            <svg viewBox="0 0 100 100" style="width:100px; fill:#5d4037; margin-bottom:20px;">
+                <path d="M10,90 Q50,100 90,90 L80,60 Q50,80 20,60 Z"/>
+                <path d="M25,60 Q50,0 50,10 Q60,30 75,60"/>
+            </svg>
+            <h2>CHAPTER IV: THE CEREMONY</h2>
+            <p>The Sorting Hat shouts...</p>
+            <h1 style="color:#740001; text-shadow:0 0 30px red; margin:20px 0; opacity:0; transform:scale(0.5); transition:1s;" id="house-reveal">GRYFFINDOR!</h1>
+            <button class="btn-magic" onclick="nextChapter(6)">CONTINUE</button>
+        </div>
+    </div>
+
+    <div id="ch6" class="chapter">
+        <div class="artifact-box" style="border-color:var(--magic);">
+            <svg viewBox="0 0 100 100" style="width:120px; fill:none; stroke:var(--magic); stroke-width:2; filter:drop-shadow(0 0 10px var(--magic));">
+                <path d="M50,90 L50,60 M50,60 L30,40 M50,60 L70,40 M30,40 L30,20 M70,40 L70,20" />
+            </svg>
+            <h2 style="color:var(--magic);">CHAPTER V: THE MAGIC</h2>
+            <h1 style="text-shadow:0 0 20px var(--magic);">EXPECTO PATRONUM</h1>
+            <p>Your magic is pure.</p>
+            <button class="btn-magic" style="border-color:var(--magic); color:var(--magic);" onclick="nextChapter(7)">REVEAL DESTINY</button>
+        </div>
+    </div>
+
+    <div id="ch7" class="chapter">
+        <div id="fireworks-layer" style="position:absolute; width:100%; height:100%; pointer-events:none;"></div>
+        <div class="artifact-box finale-container">
+            <div style="font-size:2rem;">⚡</div>
+            <h1 style="font-size: 2.5rem; margin-top: 10px;">HAPPY BIRTHDAY</h1>
+            <h2 style="color:var(--gold); font-size:1.2rem; letter-spacing:2px; border-bottom:1px solid var(--gold); padding-bottom:10px; display:inline-block;">DHARANI NEELAPURAM</h2>
+            
+            <p style="color:#fff; margin-top:20px; font-size:1rem; line-height:1.5;">
+                "To the girl who is more magical than any spell.<br>
+                May your 21st year be filled with the courage of a Gryffindor,
+                the wisdom of a Ravenclaw, and the loyalty of a Hufflepuff."
+            </p>
+
+            <div class="timer-box" id="timer">Calculating Magic...</div>
+            
+            <p style="margin-top:30px; font-size:0.8rem; opacity:0.6;">MISCHIEF MANAGED</p>
+        </div>
+    </div>
+
+    <script>
+        // --- 1. MAGIC WAND SYSTEM (Canvas) ---
+        const canvas = document.getElementById('magic-canvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        
+        let particles = [];
+        const wand = document.getElementById('wand');
+
+        class Particle {
+            constructor(x, y) {
+                this.x = x; this.y = y;
+                this.size = Math.random() * 3;
+                this.life = 100;
+                this.vx = (Math.random() - 0.5) * 2;
+                this.vy = (Math.random() - 0.5) * 2;
+            }
+            update() {
+                this.x += this.vx; this.y += this.vy; this.life -= 2;
+            }
+            draw() {
+                ctx.fillStyle = `rgba(255, 215, 0, ${this.life/100})`;
+                ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI*2); ctx.fill();
+            }
+        }
+
+        // Mouse Move
+        document.addEventListener('mousemove', (e) => {
+            requestAnimationFrame(() => {
+                wand.style.transform = `translate(${e.clientX}px, ${e.clientY}px) rotate(${e.clientX * 0.05}deg)`;
+            });
+            for(let i=0; i<3; i++) particles.push(new Particle(e.clientX, e.clientY));
+        });
+
+        // Touch Move (For Mobile)
+        document.addEventListener('touchmove', (e) => {
+            const touch = e.touches[0];
+            for(let i=0; i<3; i++) particles.push(new Particle(touch.clientX, touch.clientY));
+        });
+
+        function animateMagic() {
+            ctx.clearRect(0,0,canvas.width,canvas.height);
+            for(let i=0; i<particles.length; i++) {
+                particles[i].update();
+                particles[i].draw();
+                if(particles[i].life <= 0) particles.splice(i, 1);
+            }
+            requestAnimationFrame(animateMagic);
+        }
+        animateMagic();
+
+        // --- 2. NAVIGATION SYSTEM ---
+        function nextChapter(num, audio = false) {
+            if(audio) document.getElementById('bg-music').play().catch(e=>console.log(e));
+
+            // Hide all
+            document.querySelectorAll('.chapter').forEach(c => {
+                c.classList.remove('active');
+            });
+
+            // Show next
+            const target = document.getElementById('ch' + num);
+            target.classList.add('active');
+            
+            if(num === 5) setTimeout(() => document.getElementById('house-reveal').style.opacity = '1', 500);
+            if(num === 7) launchFireworks();
+        }
+
+        // --- 3. SPELL LOGIC ---
+        const input = document.getElementById('spellInput');
+        function checkSpell() {
+            if(input.value.trim().toUpperCase() === 'ALOHOMORA') {
+                nextChapter(3);
+            } else {
+                input.style.borderBottom = "2px solid red";
+                const box = document.querySelector('.artifact-box');
+                box.style.transform = "translateX(10px)";
+                setTimeout(()=> { 
+                    box.style.transform = "translateX(0)";
+                    input.style.borderBottom = "2px solid #333";
+                }, 200);
+            }
+        }
+        input.addEventListener('keyup', (e) => { if(e.key === 'Enter') checkSpell(); });
+
+        // --- 4. FIREWORKS ENGINE ---
+        function launchFireworks() {
+            const container = document.getElementById('fireworks-layer');
+            setInterval(() => {
+                const x = Math.random() * window.innerWidth;
+                const y = Math.random() * window.innerHeight;
+                for(let i=0; i<20; i++) {
+                    const p = document.createElement('div');
+                    p.className = 'firework';
+                    p.style.left = x + 'px';
+                    p.style.top = y + 'px';
+                    p.style.backgroundColor = ['gold', 'red', 'cyan'][Math.floor(Math.random()*3)];
+                    
+                    const angle = Math.random() * Math.PI * 2;
+                    const velocity = Math.random() * 100 + 50;
+                    p.style.setProperty('--x', Math.cos(angle) * velocity + 'px');
+                    p.style.setProperty('--y', Math.sin(angle) * velocity + 'px');
+                    
+                    container.appendChild(p);
+                    setTimeout(()=>p.remove(), 1000);
+                }
+            }, 800);
+        }
+
+        // --- 5. TIMER ---
+        function updateTime() {
+            const birth = new Date("December 19, 2004 10:30:00");
+            const now = new Date();
+            const diff = now - birth;
+            const years = Math.floor(diff / (1000 * 60 * 60 * 24 * 365.25));
+            const days = Math.floor((diff % (1000 * 60 * 60 * 24 * 365.25)) / (1000 * 60 * 60 * 24));
+            let h = now.getHours() - birth.getHours();
+            let m = now.getMinutes() - birth.getMinutes();
+            let s = now.getSeconds() - birth.getSeconds();
+            if(s<0){s+=60;m--} if(m<0){m+=60;h--} if(h<0){h+=24}
+            document.getElementById('timer').innerText = `${years} YRS | ${days} DAYS | ${h}:${m}:${s}`;
+        }
+        setInterval(updateTime, 1000);
+        updateTime();
+
+    </script>
+</body>
+</html>
