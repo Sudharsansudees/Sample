@@ -26,10 +26,10 @@
             color: var(--gold);
             font-family: 'Cinzel Decorative', serif;
             overflow: hidden; 
-            height: 100dvh; /* Mobile Address Bar Fix */
+            height: 100dvh; 
             width: 100vw;
             cursor: none;
-            position: fixed; /* Prevents bounce scroll on iOS */
+            position: fixed;
         }
 
         /* --- 2. BACKGROUNDS --- */
@@ -53,7 +53,7 @@
             animation: flyAcross 25s linear infinite;
         }
 
-        /* --- 3. WAND CURSOR --- */
+        /* --- 3. WAND (Desktop Only) --- */
         #wand {
             position: fixed; top: 0; left: 0; width: 4px; height: 60px;
             background: linear-gradient(180deg, #3d2e10, #000);
@@ -65,7 +65,7 @@
             position: fixed; inset: 0; pointer-events: none; z-index: 9999;
         }
 
-        /* --- 4. THE UI SYSTEM (FIXED ALIGNMENT) --- */
+        /* --- 4. THE UI SYSTEM (FIXED) --- */
         .chapter {
             position: absolute; inset: 0;
             display: none; 
@@ -79,19 +79,17 @@
         }
         .chapter.active { display: flex; opacity: 1; transform: scale(1); }
 
-        /* ARTIFACT BOX - WIDER AND RESPONSIVE */
+        /* THE BLACK & GOLD BOX */
         .artifact-box {
             position: relative; 
             width: 100%; 
-            max-width: 650px; /* Wider for desktop text */
+            max-width: 650px; /* Made wider to fit text */
             padding: 50px 30px; 
             text-align: center;
             background: var(--glass);
-            background-image: url('https://www.transparenttextures.com/patterns/black-scales.png');
             border: 2px solid var(--gold);
             box-shadow: 0 0 80px rgba(255, 215, 0, 0.1), inset 0 0 50px rgba(0,0,0,0.8);
             border-radius: 4px;
-            margin: auto;
         }
         
         .artifact-box::before, .artifact-box::after {
@@ -101,19 +99,19 @@
         .artifact-box::before { top: -6px; left: -6px; border-right: none; border-bottom: none; }
         .artifact-box::after { bottom: -6px; right: -6px; border-left: none; border-top: none; }
 
-        /* TEXT FIXES */
+        /* --- TYPOGRAPHY FIXES --- */
         h1 { 
-            /* This ensures text stays on one line on desktop, but wraps if absolutely necessary on tiny phones */
-            font-size: clamp(2rem, 5vw, 3.5rem); 
+            /* This "clamp" forces text to shrink if screen is small */
+            font-size: clamp(1.8rem, 5vw, 3.5rem); 
             margin: 10px 0 20px 0; 
             line-height: 1.1; 
             text-shadow: 0 0 25px var(--gold-dim); 
-            white-space: nowrap; /* Forces one line */
+            white-space: nowrap; /* Forces one line on Desktop */
         }
         
-        /* Mobile Override for very small screens */
+        /* Mobile Override: Allow wrapping only on tiny screens if needed */
         @media (max-width: 480px) {
-            h1 { white-space: normal; line-height: 1.2; font-size: 2.2rem; } 
+            h1 { white-space: normal; line-height: 1.2; font-size: 2rem; } 
         }
 
         h2 { 
@@ -182,7 +180,6 @@
             #harry-bg { width: 150px; top: 10%; opacity: 0.4; }
             .artifact-box { padding: 30px 15px; width: 95%; }
             .ticket-visual { transform: rotate(0deg); }
-            .btn-magic { width: 100%; max-width: 250px; }
         }
 
         /* ANIMATIONS */
