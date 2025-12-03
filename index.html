@@ -9,7 +9,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700;900&family=Playfair+Display:ital,wght@1,400;1,700&family=Montserrat:wght@300;600&display=swap" rel="stylesheet">
 
     <style>
-        /* --- 1. CORE UNIVERSE --- */
+        /* --- 1. CORE SETTINGS --- */
         :root {
             --gold: #FFD700;
             --gold-dim: #998100;
@@ -26,7 +26,7 @@
             color: var(--gold);
             font-family: 'Cinzel Decorative', serif;
             overflow: hidden; 
-            height: 100dvh; 
+            height: 100dvh; /* Mobile Height Fix */
             width: 100vw;
             cursor: none;
             position: fixed;
@@ -53,7 +53,7 @@
             animation: flyAcross 25s linear infinite;
         }
 
-        /* --- 3. WAND (Desktop Only) --- */
+        /* --- 3. WAND (Desktop) --- */
         #wand {
             position: fixed; top: 0; left: 0; width: 4px; height: 60px;
             background: linear-gradient(180deg, #3d2e10, #000);
@@ -65,10 +65,12 @@
             position: fixed; inset: 0; pointer-events: none; z-index: 9999;
         }
 
-        /* --- 4. THE UI SYSTEM (FIXED) --- */
+        /* --- 4. LAYOUT SYSTEM --- */
         .chapter {
             position: absolute; inset: 0;
             display: none; 
+            /* STRICT CENTERING */
+            display: flex;
             flex-direction: column; 
             justify-content: center; 
             align-items: center;
@@ -76,20 +78,27 @@
             transition: all 0.8s cubic-bezier(0.22, 1, 0.36, 1);
             z-index: 10;
             padding: 20px;
+            width: 100%;
+            height: 100%;
         }
-        .chapter.active { display: flex; opacity: 1; transform: scale(1); }
+        /* Only show active chapter */
+        .chapter:not(.active) { display: none; }
+        .chapter.active { opacity: 1; transform: scale(1); }
 
-        /* THE BLACK & GOLD BOX */
+        /* THE ARTIFACT BOX */
         .artifact-box {
             position: relative; 
             width: 100%; 
-            max-width: 650px; /* Made wider to fit text */
+            max-width: 600px;
             padding: 50px 30px; 
             text-align: center;
             background: var(--glass);
             border: 2px solid var(--gold);
             box-shadow: 0 0 80px rgba(255, 215, 0, 0.1), inset 0 0 50px rgba(0,0,0,0.8);
-            border-radius: 4px;
+            border-radius: 6px;
+            /* Ensures it never overflows screen width */
+            max-height: 90vh;
+            overflow-y: auto;
         }
         
         .artifact-box::before, .artifact-box::after {
@@ -99,50 +108,72 @@
         .artifact-box::before { top: -6px; left: -6px; border-right: none; border-bottom: none; }
         .artifact-box::after { bottom: -6px; right: -6px; border-left: none; border-top: none; }
 
-        /* --- TYPOGRAPHY FIXES --- */
+        /* --- TYPOGRAPHY (SCALABLE) --- */
         h1 { 
-            /* This "clamp" forces text to shrink if screen is small */
-            font-size: clamp(1.8rem, 5vw, 3.5rem); 
+            /* PC Default */
+            font-size: 3.5rem; 
             margin: 10px 0 20px 0; 
             line-height: 1.1; 
             text-shadow: 0 0 25px var(--gold-dim); 
             white-space: nowrap; /* Forces one line on Desktop */
         }
-        
-        /* Mobile Override: Allow wrapping only on tiny screens if needed */
-        @media (max-width: 480px) {
-            h1 { white-space: normal; line-height: 1.2; font-size: 2rem; } 
-        }
 
         h2 { 
             font-family: 'Montserrat', sans-serif; 
-            font-size: clamp(0.7rem, 2vw, 0.9rem); 
+            font-size: 0.9rem; 
             letter-spacing: 4px; color: #888; 
             text-transform: uppercase; margin-bottom: 20px; 
         }
         p { 
             font-family: 'Playfair Display', serif; 
-            font-size: clamp(1rem, 3vw, 1.2rem); 
+            font-size: 1.2rem; 
             color: #ccc; line-height: 1.6; font-style: italic; 
         }
 
-        /* INPUTS & BUTTONS */
+        /* --- MOBILE SPECIFIC FIXES --- */
+        @media (max-width: 768px) {
+            #wand { display: none; } /* Remove wand on phone */
+            
+            .artifact-box {
+                padding: 30px 15px; /* Less padding to give text room */
+                width: 95%; /* Use almost full width */
+            }
+
+            h1 {
+                /* FORCE TEXT TO FIT WIDTH */
+                font-size: 9vw; /* 9% of screen width. E.g. 36px on a 400px phone */
+                white-space: normal; /* Allow wrap ONLY if absolutely necessary */
+                line-height: 1.1;
+                margin-bottom: 15px;
+            }
+
+            h2 { font-size: 0.7rem; letter-spacing: 2px; }
+            p { font-size: 1rem; }
+            
+            /* Ticket Fix */
+            .ticket-visual { transform: rotate(0deg) !important; margin: 15px 0; }
+            .ticket-visual div { font-size: 0.8rem; }
+            .ticket-visual .big-num { font-size: 2.5rem !important; }
+        }
+
+        /* --- INPUTS & BUTTONS --- */
         input {
             background: transparent; border: none; border-bottom: 2px solid #333;
             color: #fff; font-family: 'Cinzel Decorative'; 
-            font-size: clamp(1.5rem, 4vw, 2.2rem);
-            text-align: center; width: 100%; outline: none; margin: 30px 0;
+            font-size: 2rem;
+            text-align: center; width: 100%; outline: none; margin: 25px 0;
             text-transform: uppercase; letter-spacing: 5px; transition: 0.3s;
             border-radius: 0;
         }
+        @media (max-width: 768px) { input { font-size: 1.5rem; letter-spacing: 2px; } }
         input:focus { border-color: var(--gold); text-shadow: 0 0 10px var(--gold); }
 
         .btn-magic {
-            margin-top: 20px; padding: 15px 45px;
+            margin-top: 15px; padding: 15px 40px;
             background: transparent; border: 1px solid var(--gold);
             color: var(--gold); font-family: 'Cinzel Decorative'; font-size: 1rem;
             cursor: pointer; letter-spacing: 3px; position: relative; overflow: hidden;
-            transition: 0.4s; z-index: 1;
+            transition: 0.4s; z-index: 1; width: 100%; max-width: 250px;
         }
         .btn-magic:hover, .btn-magic:active { color: #000; box-shadow: 0 0 30px var(--gold); background: var(--gold); }
 
@@ -152,7 +183,7 @@
             margin-top: 15px; border: 1px dashed var(--magic); padding: 10px;
         }
 
-        /* --- PAGE SPECIFIC --- */
+        /* --- PAGE SPECIFIC VISUALS --- */
         .pulsing-seal {
             width: 140px; height: 140px; border: 2px solid var(--gold); border-radius: 50%;
             display: flex; justify-content: center; align-items: center; cursor: pointer;
@@ -161,26 +192,19 @@
         .seal-text { font-size: 3rem; margin: 0; }
 
         .ticket-visual {
-            background: #e6dcc3; color: #111; padding: 25px; transform: rotate(-2deg);
+            background: #e6dcc3; color: #111; padding: 20px; transform: rotate(-2deg);
             border: 2px dashed #333; font-family: 'Playfair Display'; margin: 20px 0;
             box-shadow: 10px 10px 30px rgba(0,0,0,0.8);
         }
+        .ticket-visual .big-num { font-size: 3rem; font-weight: bold; line-height: 1.2; }
 
-        .finale-container { border: 4px double var(--gold); padding: 40px 20px; background: rgba(20,0,0,0.9); }
+        .finale-container { border: 4px double var(--gold); padding: 30px 20px; background: rgba(20,0,0,0.95); }
         .timer-box { 
             font-family: 'Montserrat', monospace; border: 1px solid var(--gold); 
-            padding: 10px; display: inline-block; margin-top: 20px; color: #fff;
+            padding: 10px; display: inline-block; margin-top: 20px; color: #fff; font-size: 0.9rem;
         }
         
         .firework { position: absolute; width: 4px; height: 4px; border-radius: 50%; animation: explode 1s forwards; }
-
-        /* --- MOBILE TWEAKS --- */
-        @media (max-width: 768px) {
-            #wand { display: none; }
-            #harry-bg { width: 150px; top: 10%; opacity: 0.4; }
-            .artifact-box { padding: 30px 15px; width: 95%; }
-            .ticket-visual { transform: rotate(0deg); }
-        }
 
         /* ANIMATIONS */
         @keyframes moveFog { 0% {transform: translateX(0);} 100% {transform: translateX(-50%);} }
@@ -255,7 +279,7 @@
                 <div style="border-bottom: 2px solid #000; display:flex; justify-content:space-between; margin-bottom:10px;">
                     <span>LONDON</span><span>HOGWARTS</span>
                 </div>
-                <div style="font-size:3rem; font-weight:bold; line-height:1;">9 ¾</div>
+                <div class="big-num">9 ¾</div>
                 <div style="font-size:0.9rem; margin-top:10px;">PASSENGER: DHARANI N.</div>
             </div>
             <p>The train leaves at 11:00 AM.</p>
@@ -292,7 +316,7 @@
         <div id="fireworks-layer" style="position:absolute; inset:0; pointer-events:none;"></div>
         <div class="artifact-box finale-container">
             <div style="font-size:2rem;">⚡</div>
-            <h1 style="font-size: 2.5rem; margin-top: 10px;">HAPPY BIRTHDAY</h1>
+            <h1 style="margin-top: 10px;">HAPPY BIRTHDAY</h1>
             <h2 style="color:var(--gold); font-size:1.2rem; letter-spacing:2px; border-bottom:1px solid var(--gold); padding-bottom:10px; display:inline-block;">DHARANI NEELAPURAM</h2>
             
             <p style="color:#fff; margin-top:20px; font-size:1rem; line-height:1.5;">
